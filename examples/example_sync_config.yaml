@@ -1,0 +1,43 @@
+# Example sync configuration for govee-sync CLI tool
+#
+# Usage:
+#   export GOVEE_API_KEY="your-key-here"
+#   govee-sync --config sync_config.yaml
+
+# API Key (can use environment variable)
+api_key: ${GOVEE_API_KEY}
+
+# Output file path
+output: ./govee_devices.json
+
+# Preserve manual changes from existing file (IPs, custom settings)
+preserve_manual: true
+
+# Detect renamed devices/scenes and report them
+detect_renames: true
+
+# Filter scenes by prefix (e.g., "SC_" for StrangerCourt scenes)
+# Leave empty or omit to fetch all scenes
+scene_prefix: SC_
+
+# Filter devices by name
+# Leave empty or omit to fetch ALL devices
+filter_names:
+  - Garage Left
+  - Garage Right
+  - Neon Sign
+  - Strip Machine Core
+  - Flood Light Left
+  - Flood Light Right
+
+# Optional: Define collections
+# These will be included in the output file
+collections:
+  garage_lights:
+    - Garage Left
+    - Garage Right
+
+  all_neon:
+    - Neon Sign
+    - Neon Left
+    - Neon Right

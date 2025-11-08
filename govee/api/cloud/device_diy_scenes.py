@@ -1,0 +1,139 @@
+"""
+Cloud API: POST /router/api/v1/device/diy-scenes
+
+Fetches DIY scenes for a specific device.
+"""
+import logging
+import uuid
+from typing import Dict, Any, List
+import requests
+
+from govee.exceptions import GoveeAPIError, GoveeConnectionError, GoveeTimeoutError
+
+logger = logging.getLogger(__name__)
+
+ENDPOINT = "/device/diy-scenes"
+
+
+def get_diy_scenes(
+    api_key: str,
+    device_id: str,
+    sku: str,
+    base_url: str = "https://openapi.api.govee.com/router/api/v1",
+    timeout: float = 10.0,
+    device_name: str = None,
+) -> List[Dict[str, Any]]:
+    """
+    Fetch DIY scenes for a specific device.
+
+    Args:
+        api_key: Govee API key
+        device_id: Device ID (e.g., "14:15:60:74:F4:07:99:39")
+        sku: Device SKU (e.g., "H6008")
+        base_url: Base URL for Govee API
+        timeout: Request timeout in seconds
+        device_name: Optional device name for logging
+
+    Returns:
+        List of scene dictionaries
+
+    Raises:
+        GoveeAPIError: If API returns an error
+        GoveeConnectionError: If connection fails
+        GoveeTimeoutError: If request times out
+
+    Example response:
+        [
+            {
+                "id": 12345,
+                "name": "SC_Bulb_Starcourt"
+            },
+            {
+                "id": 12346,
+                "name": "SC_Bulb_Russia"
+            }
+        ]
+    """
+    url = f"{base_url.rstrip('/')}{ENDPOINT}"
+    headers = {"Govee-API-Key": api_key, "Content-Type": "application/json"}
+
+    payload = {
+        "requestId": str(uuid.uuid4()),
+        "payload": {"device": device_id, "sku": sku},
+    }
+
+    device_label = device_name or device_id
+    logger.debug(f"Fetching DIY scenes for device {device_label} (SKU: {sku})")
+
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=timeout)
+        response.raise_for_status()
+
+        data = response.json()
+
+        # Check for API error codes
+        code = data.get("code")
+        if code != 200:
+            message = data.get("message", "Unknown error")
+
+            # 400 errors typically mean the device doesn't support DIY scenes
+            # This is expected for some devices (like plugs), so log as debug
+            if code == 400:
+                logger.debug(f"Device {device_label} does not support DIY scenes (400 error)")
+            else:
+                logger.error(f"API error {code} for device {device_label}: {message}")
+
+            raise GoveeAPIError(
+                f"API returned error code {code}: {message}",
+                status_code=code,
+                response_data=data,
+            )
+
+        # Extract DIY scenes from capabilities
+        # The API returns scenes in: payload.capabilities[].parameters.options[]
+        # where capability type is "devices.capabilities.dynamic_scene"
+        scenes = []
+        payload = data.get("payload", {})
+        capabilities = payload.get("capabilities", [])
+
+        for cap in capabilities:
+            if cap.get("type") == "devices.capabilities.dynamic_scene" and cap.get("instance") == "diyScene":
+                options = cap.get("parameters", {}).get("options", [])
+                # Each option has: {"name": "...", "value": scene_id}
+                for opt in options:
+                    scenes.append({
+                        "id": opt.get("value"),
+                        "name": opt.get("name")
+                    })
+                break  # Only one diyScene capability per device
+
+        logger.info(f"Successfully fetched {len(scenes)} DIY scenes for {device_label}")
+        return scenes
+
+    except requests.exceptions.Timeout as e:
+        logger.error(f"Request timed out: {e}")
+        raise GoveeTimeoutError(f"Request to {url} timed out after {timeout}s") from e
+
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"Connection error: {e}")
+        raise GoveeConnectionError(f"Failed to connect to {url}") from e
+
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"HTTP error: {e}")
+        try:
+            error_data = response.json()
+            message = error_data.get("message", str(e))
+        except Exception:
+            message = str(e)
+
+        raise GoveeAPIError(
+            f"HTTP error: {message}", status_code=response.status_code, response_data=error_data
+        ) from e
+
+    except Exception as e:
+        # Check if this is a GoveeAPIError with 400 status (expected for devices without scenes)
+        if isinstance(e, GoveeAPIError) and "400" in str(e):
+            logger.debug(f"Device {device_id} does not support DIY scenes (caught in handler)")
+        else:
+            logger.error(f"Unexpected error: {e}")
+        raise GoveeAPIError(f"Unexpected error fetching DIY scenes: {e}") from e
