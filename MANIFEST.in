@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+include pyproject.toml
+include requirements.txt
+recursive-include govee *.py
+recursive-include examples *.py *.yaml
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

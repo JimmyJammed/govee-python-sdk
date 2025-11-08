@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(chmod:*)",
+      "Bash(ls:*)",
+      "Bash(echo:*)",
+      "Bash(ssh:*)",
+      "Bash(cat:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(sed:*)",
+      "Bash(systemctl status:*)",
+      "Bash(mkdir:*)",
+      "Bash(tree:*)",
+      "Bash(pip install:*)",
+      "Bash(govee-sync --help:*)",
+      "Bash(govee-sync:*)",
+      "Bash(ping:*)",
+      "Bash(nmap:*)",
+      "Bash(timeout 5 python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(pip3 uninstall:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
