@@ -390,14 +390,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Changelog
 
-### 0.1.0 (2025-11-07)
+### 1.0.0 (2025-01-07)
 
-Initial release:
+First stable release:
 - Interactive CLI wizard (`govee-sync`)
-- LAN and Cloud API support
+- LAN and Cloud API support with automatic fallback
 - Device discovery and Python module export
 - Built-in and DIY scene support
 - Batch operations for multiple devices
 - Type-safe models with full IDE support
-- Automatic LAN/Cloud fallback
+- IP address preservation across device re-fetches
+- Consistent scene deduplication and export
 - Comprehensive error handling

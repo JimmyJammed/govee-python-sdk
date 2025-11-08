@@ -12,7 +12,7 @@ Example usage:
     client.set_color(garage_light, Colors.RED)
 """
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 __author__ = "Your Name"
 __license__ = "MIT"
 
