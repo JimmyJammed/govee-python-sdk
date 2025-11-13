@@ -11,7 +11,7 @@ import json
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from govee.models import Device, Scene, DIYScene, Collection, RGBColor, Colors
+from govee.models import Device, Scene, DIYScene, MusicMode, Collection, RGBColor, Colors
 from govee.exceptions import (
     GoveeError,
     GoveeDeviceNotFoundError,
@@ -22,6 +22,7 @@ from govee.api.cloud import devices as cloud_devices
 from govee.api.cloud import device_control as cloud_control
 from govee.api.cloud import device_diy_scenes as cloud_diy_scenes
 from govee.api.cloud import device_scenes as cloud_builtin_scenes
+from govee.api.cloud import device_music_modes as cloud_music_modes
 from govee.api.lan import power as lan_power
 from govee.api.lan import brightness as lan_brightness
 from govee.api.lan import color as lan_color
@@ -77,6 +78,7 @@ class GoveeClient:
         # Device storage
         self._devices: List[Device] = []
         self._scenes: List[Scene] = []
+        self._music_modes: List[MusicMode] = []
         self._collections: Dict[str, Collection] = {}
 
         # Configure logging
@@ -163,8 +165,9 @@ class GoveeClient:
         """
         Load devices from Python module or JSON file.
 
-        Tries to load from Python modules first (govee_devices.py, govee_diy_scenes.py, govee_scenes.py),
-        then falls back to JSON if Python modules don't exist.
+        Tries to load from Python modules first (govee_devices.py, govee_scenes.py,
+        govee_diy_scenes.py, govee_music_modes.py), then falls back to JSON if Python
+        modules don't exist.
 
         Args:
             file_path: Path to Python module (.py), JSON file (.json), or directory containing modules
@@ -187,6 +190,7 @@ class GoveeClient:
 
         scenes_module_path = module_dir / "govee_scenes.py"
         diy_scenes_module_path = module_dir / "govee_diy_scenes.py"
+        music_modes_module_path = module_dir / "govee_music_modes.py"
 
         # Try loading from Python modules first
         if devices_module_path.exists():
@@ -238,10 +242,24 @@ class GoveeClient:
                             if isinstance(diy_scene_obj, DIYScene):
                                 self._scenes.append(diy_scene_obj)
 
+                # Load music modes module (if exists)
+                self._music_modes = []
+                if music_modes_module_path.exists():
+                    logger.info(f"Loading music modes from Python module: {music_modes_module_path}")
+                    spec = importlib.util.spec_from_file_location("govee_music_modes", str(music_modes_module_path))
+                    if spec and spec.loader:
+                        music_modes_module = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(music_modes_module)
+
+                        for mode_name in getattr(music_modes_module, "__all__", []):
+                            mode_obj = getattr(music_modes_module, mode_name)
+                            if isinstance(mode_obj, MusicMode):
+                                self._music_modes.append(mode_obj)
+
                 # Collections are not stored in Python modules yet, so initialize empty
                 self._collections = {}
 
-                logger.info(f"Loaded {len(self._devices)} devices, {len(self._scenes)} scenes from Python modules")
+                logger.info(f"Loaded {len(self._devices)} devices, {len(self._scenes)} scenes, {len(self._music_modes)} music modes from Python modules")
                 return
 
             except Exception as e:
@@ -310,12 +328,13 @@ class GoveeClient:
 
     def export_as_modules(self, directory: Union[str, Path] = ".") -> None:
         """
-        Export devices, scenes, and DIY scenes as Python modules.
+        Export devices, scenes, DIY scenes, and music modes as Python modules.
 
-        Creates three Python files in the specified directory:
+        Creates up to four Python files in the specified directory:
         - govee_devices.py: Device objects
         - govee_scenes.py: Built-in scene objects
         - govee_diy_scenes.py: DIY scene objects
+        - govee_music_modes.py: Music mode objects
 
         These can be imported and used in your code with type hints and IDE autocomplete.
 
@@ -333,13 +352,14 @@ class GoveeClient:
             # Now you can import and use:
             from govee_devices import ground2_machine
             from govee_scenes import sunset
+            from govee_music_modes import energic_h6008
             client.apply_scene(ground2_machine, sunset)
             ```
         """
         directory = Path(directory)
         directory.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Exporting devices and scenes as Python modules to {directory}")
+        logger.info(f"Exporting devices, scenes, and music modes as Python modules to {directory}")
 
         # Export devices
         self._export_devices_module(directory / "govee_devices.py")
@@ -354,7 +374,12 @@ class GoveeClient:
         if diy_scenes:
             self._export_diy_scenes_module(directory / "govee_diy_scenes.py", diy_scenes)
 
-        logger.info(f"Exported {len(self._devices)} devices, {len(built_in_scenes)} scenes, {len(diy_scenes)} DIY scenes")
+        # Export music modes
+        music_modes = [m for m in self._music_modes if isinstance(m, MusicMode)]
+        if music_modes:
+            self._export_music_modes_module(directory / "govee_music_modes.py", music_modes)
+
+        logger.info(f"Exported {len(self._devices)} devices, {len(built_in_scenes)} scenes, {len(diy_scenes)} DIY scenes, {len(music_modes)} music modes")
 
     def _export_devices_module(self, file_path: Path) -> None:
         """Generate govee_devices.py module."""
@@ -491,6 +516,47 @@ class GoveeClient:
 
         file_path.write_text('\n'.join(lines))
         logger.info(f"Wrote {len(diy_scenes)} DIY scenes to {file_path}")
+
+    def _export_music_modes_module(self, file_path: Path, music_modes: List[MusicMode]) -> None:
+        """Generate govee_music_modes.py module."""
+        lines = [
+            '"""',
+            'Govee music modes exported from your devices.',
+            'Generated by govee-python-sdk.',
+            '',
+            'Import music modes directly:',
+            '    from govee_music_modes import energic_h6008',
+            '"""',
+            'from govee.models import MusicMode',
+            '',
+            ''
+        ]
+
+        # Generate variable names and __all__ list
+        var_names = []
+        for mode in music_modes:
+            # Include SKU suffix to differentiate modes with same name but different values
+            base_name = self._to_snake_case(mode.name)
+            var_name = f"{base_name}_{mode.sku.lower()}" if mode.sku else base_name
+            var_names.append(var_name)
+
+            lines.append(f'{var_name} = MusicMode(')
+            lines.append(f'    name="{mode.name}",')
+            lines.append(f'    value={mode.value},')
+            sku_value = "None" if not mode.sku else f'"{mode.sku}"'
+            lines.append(f'    sku={sku_value},')
+            lines.append(f'    metadata={repr(mode.metadata)}')
+            lines.append(')')
+            lines.append('')
+
+        # Add __all__
+        lines.append('__all__ = [')
+        for var_name in var_names:
+            lines.append(f'    "{var_name}",')
+        lines.append(']')
+
+        file_path.write_text('\n'.join(lines))
+        logger.info(f"Wrote {len(music_modes)} music modes to {file_path}")
 
     @staticmethod
     def _to_snake_case(name: str) -> str:
@@ -785,6 +851,106 @@ class GoveeClient:
         return [
             scene for scene in self._scenes
             if scene.sku == device.sku and isinstance(scene, DIYScene)
+        ]
+
+    def discover_music_modes(
+        self,
+        devices: Optional[List[Device]] = None
+    ) -> List[MusicMode]:
+        """
+        Discover music modes from device capabilities.
+
+        Music modes are included in device capabilities from the GET /user/devices endpoint.
+        This method parses those capabilities to extract available music visualization modes.
+
+        Args:
+            devices: List of devices to extract music modes from (default: all devices)
+
+        Returns:
+            List of discovered music modes
+        """
+        if devices is None:
+            devices = self._devices
+
+        logger.info(f"Discovering music modes for {len(devices)} devices...")
+
+        # Need to re-fetch devices to get full capability details
+        response = cloud_devices.get_devices(
+            api_key=self.api_key,
+            base_url=self.base_url,
+            timeout=self.timeout
+        )
+
+        # Handle both old and new API response formats
+        if "data" in response:
+            devices_data = response.get("data", [])
+        else:
+            devices_data = response.get("payload", {}).get("devices", [])
+
+        # Create a map of device ID to device data for quick lookup
+        device_data_map = {dev["device"]: dev for dev in devices_data}
+
+        music_modes = []
+        seen = set()  # Avoid duplicates: (mode_value, SKU)
+
+        for device in devices:
+            # Skip devices that don't support music mode
+            if not device.supports_music_mode:
+                continue
+
+            try:
+                # Get the full device data with capabilities
+                device_data = device_data_map.get(device.id)
+                if not device_data:
+                    logger.warning(f"Device {device.name} not found in API response")
+                    continue
+
+                # Parse music modes from capabilities
+                device_music_modes = cloud_music_modes.get_music_modes_from_device_data(device_data)
+
+                for mode_data in device_music_modes:
+                    mode_name = mode_data.get("name", "")
+                    mode_value = mode_data.get("value")
+                    mode_metadata = mode_data.get("metadata", {})
+
+                    # Use mode value + SKU as deduplication key
+                    # (different devices may have same mode names with different values)
+                    mode_key = (mode_value, device.sku)
+
+                    if mode_key in seen:
+                        continue
+
+                    seen.add(mode_key)
+                    music_mode = MusicMode(
+                        name=mode_name,
+                        value=mode_value,
+                        sku=device.sku,
+                        metadata=mode_metadata
+                    )
+                    music_modes.append(music_mode)
+
+            except Exception as e:
+                logger.warning(f"Failed to parse music modes for {device.name}: {e}")
+                continue
+
+        # Add to _music_modes list
+        self._music_modes.extend(music_modes)
+        logger.info(f"Discovered {len(music_modes)} music modes")
+        return music_modes
+
+    def get_music_modes(self, device: Device) -> List[MusicMode]:
+        """
+        Get all music modes for a specific device.
+
+        Args:
+            device: Device to get music modes for
+
+        Returns:
+            List of MusicMode objects for this device SKU
+        """
+        return [
+            mode for mode in self._music_modes
+            if mode.sku == device.sku
         ]
 
     # ========== Device Control (with LAN-first fallback) ==========

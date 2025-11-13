@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 
 from govee.client import GoveeClient
-from govee.models import Device, Scene, DIYScene, Colors
+from govee.models import Device, Scene, DIYScene, MusicMode, Colors
 from govee import __version__
 
 # Config file location
@@ -137,7 +137,11 @@ def fetch_devices(client: GoveeClient):
     diy_scenes = client.discover_diy_scenes()
     print(f"   ✓ Found {len(diy_scenes)} DIY scenes")
 
-    print("\n4. Exporting as Python modules...")
+    print("\n4. Fetching music modes...")
+    music_modes = client.discover_music_modes()
+    print(f"   ✓ Found {len(music_modes)} music modes")
+
+    print("\n5. Exporting as Python modules...")
     current_dir = Path.cwd()
     client.export_as_modules(current_dir)
     print(f"   ✓ Exported to:")
@@ -146,6 +150,8 @@ def fetch_devices(client: GoveeClient):
         print(f"      - {current_dir / 'govee_scenes.py'}")
     if (current_dir / 'govee_diy_scenes.py').exists():
         print(f"      - {current_dir / 'govee_diy_scenes.py'}")
+    if (current_dir / 'govee_music_modes.py').exists():
+        print(f"      - {current_dir / 'govee_music_modes.py'}")
 
     print("\n✓ Fetch complete!")
     input("\nPress Enter to continue...")
@@ -288,7 +294,8 @@ def device_commands_menu(client: GoveeClient):
             "Set Brightness",
             "Set Warmth",
             "Set Scene",
-            "Set DIY Scene"
+            "Set DIY Scene",
+            "Set Music Mode"
         ]
 
         choice = print_menu(options)
@@ -325,6 +332,9 @@ def device_commands_menu(client: GoveeClient):
 
         elif choice == 7:  # Set DIY Scene
             set_scene(client, device, diy=True)
+
+        elif choice == 8:  # Set Music Mode
+            set_music_mode(client, device)
 
 
 def set_color_submenu(client: GoveeClient, device: Device):
@@ -470,22 +480,114 @@ def set_scene(client: GoveeClient, device: Device, diy: bool = False):
         input("Press Enter to continue...")
 
 
+def set_music_mode(client: GoveeClient, device: Device):
+    """Set device music mode."""
+    print_header("Select Music Mode")
+
+    # Check if device supports music mode
+    if not device.supports_music_mode:
+        print(f"\n✗ Device {device.name} does not support music mode.")
+        input("Press Enter to continue...")
+        return
+
+    try:
+        # Get music modes for this device
+        music_modes = client.get_music_modes(device)
+
+        if not music_modes:
+            print(f"\nNo music modes available for this device.")
+            print(f"You may need to fetch devices first to discover music modes.")
+            input("Press Enter to continue...")
+            return
+
+        print(f"\nAvailable Music Modes:")
+        for i, mode in enumerate(music_modes, 1):
+            print(f"  [{i}] {mode.name}")
+        print(f"  [0] Back")
+        print()
+
+        while True:
+            try:
+                choice = input("Select music mode: ").strip()
+                choice_num = int(choice)
+                if choice_num == 0:
+                    return
+                if 1 <= choice_num <= len(music_modes):
+                    selected_mode = music_modes[choice_num - 1]
+
+                    # Prompt for sensitivity (optional, defaults to 100)
+                    print(f"\nSensitivity (0-100, default 100): ", end="")
+                    sensitivity_input = input().strip()
+                    sensitivity = int(sensitivity_input) if sensitivity_input else 100
+
+                    if not (0 <= sensitivity <= 100):
+                        print("\n✗ Invalid sensitivity value! Must be 0-100.")
+                        input("Press Enter to continue...")
+                        return
+
+                    # Apply music mode
+                    result = client.set_music_mode(device, selected_mode.value, sensitivity=sensitivity)
+                    print(f"\n✓ Applied music mode: {selected_mode.name} (sensitivity: {sensitivity}%)")
+                    input("Press Enter to continue...")
+                    return
+                print(f"Invalid choice. Please enter 0-{len(music_modes)}")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+            except Exception as e:
+                print(f"\n✗ Error: {e}")
+                input("Press Enter to continue...")
+                return
+
+    except Exception as e:
+        print(f"\n✗ Error fetching music modes: {e}")
+        input("Press Enter to continue...")
+
+
 def main_menu():
     """Main menu loop."""
     config = load_config()
-    api_key = get_api_key(config)
-    client = GoveeClient(api_key=api_key)
+
+    # If no API key is set, skip menu and go straight to setup
+    if 'api_key' not in config:
+        clear_screen()
+        api_key = get_api_key(config)
+        client = GoveeClient(api_key=api_key)
+        clear_screen()
+        print_header("Setup Complete!")
+        print("\n✓ API key configured successfully!")
+        print("\nNext step: Fetch your Govee devices from the cloud.")
+        input("\nPress Enter to continue...")
+    else:
+        api_key = config['api_key']
+        client = GoveeClient(api_key=api_key)
+
+    # Try to load existing devices if they exist
+    current_dir = Path.cwd()
+    devices_file = current_dir / "govee_devices.py"
+    if devices_file.exists():
+        try:
+            client.load_devices(current_dir)
+        except Exception:
+            pass  # Silently ignore load errors
 
     while True:
         clear_screen()
         print_header(f"Govee Control Wizard v{__version__}")
 
+        # Build menu options based on state
+        has_devices = len(client._devices) > 0
+
         options = [
             "Update API Key",
-            "Fetch Govee Devices",
-            "Device Commands",
-            "Run Tests"
+            "Fetch Govee Devices"
         ]
+
+        # Only show these options if devices have been fetched
+        if has_devices:
+            options.extend([
+                "Device Commands",
+                "Run Tests"
+            ])
 
         choice = print_menu(options)
 
@@ -494,11 +596,14 @@ def main_menu():
             sys.exit(0)
         elif choice == 1:
             update_api_key(config)
+            # Reload client with new API key
+            api_key = config.get('api_key', '')
+            client = GoveeClient(api_key=api_key)
         elif choice == 2:
             fetch_devices(client)
-        elif choice == 3:
+        elif choice == 3 and has_devices:
             device_commands_menu(client)
-        elif choice == 4:
+        elif choice == 4 and has_devices:
             run_tests(client)
 
 

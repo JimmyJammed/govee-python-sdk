@@ -197,11 +197,31 @@ class MusicMode:
         name: Mode name (e.g., "Energic", "Rhythm")
         value: Mode ID/value for API
         sku: Device SKU this mode is available for
+        metadata: Additional mode metadata (sensitivity range, color options, etc.)
     """
 
     name: str
     value: int
     sku: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert music mode to dictionary for serialization."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "MusicMode":
+        """Create music mode from dictionary."""
+        return cls(**data)
+
+    def to_json(self) -> str:
+        """Convert music mode to JSON string."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "MusicMode":
+        """Create music mode from JSON string."""
+        return cls.from_dict(json.loads(json_str))
 
     def __repr__(self) -> str:
         return f"MusicMode(name='{self.name}', sku='{self.sku}')"
