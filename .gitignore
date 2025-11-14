@@ -27,6 +27,14 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# PyPI / Release publishing artifacts
+# These are generated during 'python3 -m build' and 'twine upload'
+dist/
+build/
+*.egg-info/
+*.whl
+*.tar.gz
+
 # PyInstaller
 *.manifest
 *.spec
