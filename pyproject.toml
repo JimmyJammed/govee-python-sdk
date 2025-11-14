@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "govee-python"
-version = "1.2.0"
+version = "1.0.1"
 description = "Python library for controlling Govee smart lights via LAN and Cloud APIs"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "Jimmy Hickman", email = "jhickman707@icloud.com"}
 ]
 keywords = ["govee", "smart-lights", "iot", "home-automation", "led"]
 classifiers = [
@@ -43,10 +43,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/govee-python"
-Documentation = "https://github.com/yourusername/govee-python#readme"
-Repository = "https://github.com/yourusername/govee-python"
-"Bug Tracker" = "https://github.com/yourusername/govee-python/issues"
+Homepage = "https://github.com/JimmyJammed/govee-python-sdk"
+Documentation = "https://github.com/JimmyJammed/govee-python-sdk#readme"
+Repository = "https://github.com/JimmyJammed/govee-python-sdk"
+"Bug Tracker" = "https://github.com/JimmyJammed/govee-python-sdk/issues"
 
 [project.scripts]
 govee-sync = "govee.cli:main"
