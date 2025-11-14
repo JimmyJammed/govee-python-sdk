@@ -12,12 +12,13 @@ Example usage:
     client.set_color(garage_light, Colors.RED)
 """
 
-__version__ = "1.0.0"
+__version__ = "1.2.0"
 __author__ = "Your Name"
 __license__ = "MIT"
 
 from govee.client import GoveeClient
 from govee.models import Device, Scene, Collection, Colors, RGBColor
+from govee.state import StateManager, DeviceState
 from govee.exceptions import (
     GoveeError,
     GoveeAPIError,
@@ -37,6 +38,8 @@ __all__ = [
     "Collection",
     "Colors",
     "RGBColor",
+    "StateManager",
+    "DeviceState",
     "GoveeError",
     "GoveeAPIError",
     "GoveeConnectionError",

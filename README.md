@@ -10,6 +10,7 @@ A modern, easy-to-use Python library for controlling Govee smart lights via LAN 
 - **Interactive CLI Wizard** - Easy setup and device control with `govee-sync`
 - **Dual Protocol Support** - LAN (UDP) for fast local control, Cloud API for full features
 - **Automatic Fallback** - Tries LAN first, falls back to Cloud seamlessly
+- **State Management** - Save and restore device states (perfect for light shows)
 - **Type-Safe Models** - Full type hints with dataclasses for IDE autocomplete
 - **Python Module Export** - Import devices and scenes directly as Python objects
 - **Built-in & DIY Scenes** - Apply Govee's default scenes or your custom creations
@@ -151,6 +152,28 @@ client.set_color_all(living_room, Colors.WARM_WHITE)
 results = client.power_all(living_room, on=True)
 print(f"Success: {sum(results.values())}/{len(results)}")
 ```
+
+### State Management (Save & Restore)
+
+Perfect for light shows where you want to restore the original state afterwards:
+
+```python
+# Save current state before light show
+client.save_state(living_room)
+
+# Run your light show (change colors, brightness, etc.)
+client.set_color_all(living_room, Colors.RED)
+client.set_brightness_all(living_room, 100)
+# ... more changes during show ...
+
+# Restore original state after show
+client.restore_state()  # Restores all saved devices
+
+# Or restore specific devices
+client.restore_state(living_room)
+```
+
+See [State Management Documentation](docs/STATE_MANAGEMENT.md) for full details.
 
 ### Export Devices as Python Modules
 

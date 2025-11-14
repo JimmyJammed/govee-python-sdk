@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "govee-python"
-version = "1.0.0"
+version = "1.2.0"
 description = "Python library for controlling Govee smart lights via LAN and Cloud APIs"
 readme = "README.md"
 requires-python = ">=3.8"

@@ -1369,3 +1369,99 @@ class GoveeClient:
         logger.info(f"Batch scene application: {success_count}/{len(devices)} successful")
 
         return results
+
+    # ========== State Management ==========
+
+    def save_state(
+        self,
+        devices: Union[Device, List[Device], Collection],
+        force_refresh: bool = True
+    ) -> Dict[str, "DeviceState"]:
+        """
+        Save current state of devices (power, brightness, color, etc.).
+
+        This is useful before running light shows where you want to restore
+        the original state afterwards.
+
+        Args:
+            devices: Device(s) to save state for
+            force_refresh: If True, fetch fresh state from API
+
+        Returns:
+            Dictionary mapping device IDs to their saved DeviceState objects
+
+        Example:
+            # Save state before light show
+            client.save_state([device1, device2])
+
+            # ... run light show ...
+
+            # Restore state after light show
+            client.restore_state([device1, device2])
+        """
+        from govee.state import StateManager
+
+        if not hasattr(self, "_state_manager"):
+            self._state_manager = StateManager(self)
+
+        return self._state_manager.save_state(devices, force_refresh)
+
+    def restore_state(
+        self,
+        devices: Optional[Union[Device, List[Device], Collection]] = None,
+        skip_on_error: bool = True
+    ) -> Dict[str, bool]:
+        """
+        Restore previously saved state for devices.
+
+        Args:
+            devices: Device(s) to restore. If None, restores all previously saved devices.
+            skip_on_error: If True, continue on errors. If False, raise on first error.
+
+        Returns:
+            Dictionary mapping device IDs to success status (True=restored, False=failed)
+
+        Example:
+            # Restore specific devices
+            client.restore_state([device1, device2])
+
+            # Restore all previously saved devices
+            client.restore_state()
+        """
+        from govee.state import StateManager
+
+        if not hasattr(self, "_state_manager"):
+            logger.warning("No state manager found. Call save_state() first.")
+            return {}
+
+        return self._state_manager.restore_state(devices, skip_on_error)
+
+    def clear_saved_state(
+        self,
+        devices: Optional[Union[Device, List[Device], Collection]] = None
+    ) -> None:
+        """
+        Clear saved state for devices.
+
+        Args:
+            devices: Device(s) to clear state for. If None, clears all saved states.
+        """
+        if not hasattr(self, "_state_manager"):
+            return
+
+        self._state_manager.clear_saved_state(devices)
+
+    def get_saved_state(self, device: Device) -> Optional["DeviceState"]:
+        """
+        Get saved state for a device without restoring it.
+
+        Args:
+            device: Device to get saved state for
+
+        Returns:
+            DeviceState if found, None otherwise
+        """
+        if not hasattr(self, "_state_manager"):
+            return None
+
+        return self._state_manager.get_saved_state(device)
