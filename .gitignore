@@ -38,6 +38,10 @@ build/
 # Ensure all files in dist/ are ignored
 dist/**
 build/**
+# Release/publishing utility scripts (local tools, not part of the package)
+check_pypi_version.py
+publish_to_pypi.sh
+PYPI_PUBLISHING.md
 
 # PyInstaller
 *.manifest
