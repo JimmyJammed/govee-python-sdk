@@ -32,8 +32,12 @@ MANIFEST
 dist/
 build/
 *.egg-info/
+# Distribution files (anywhere in the repo)
 *.whl
 *.tar.gz
+# Ensure all files in dist/ are ignored
+dist/**
+build/**
 
 # PyInstaller
 *.manifest
