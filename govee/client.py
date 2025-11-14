@@ -1129,55 +1129,82 @@ class GoveeClient:
             logger.error(f"Failed to set color temperature for {device.name}: {e}")
             raise
 
-    def apply_scene(self, device: Device, scene: Union[Scene, DIYScene]) -> bool:
+    async def apply_scene(self, device: Union[Device, list], scene: Union[Scene, DIYScene]) -> bool:
         """
-        Apply a scene (built-in or DIY) to device.
+        Apply a scene (built-in or DIY) to device(s).
 
         Note: Scenes are only available via Cloud API.
 
         Args:
-            device: Device to control
+            device: Device or list of devices to control
             scene: Scene or DIYScene to apply
 
         Returns:
-            True if successful
+            True if successful (or True if all devices succeeded when given a list)
         """
-        try:
-            # Check if this is a DIY scene or built-in scene
-            if isinstance(scene, DIYScene):
-                # DIY scenes use diyScene capability with scene.id
-                cloud_control.scene(
-                    api_key=self.api_key,
-                    device_id=device.id,
-                    sku=device.sku,
-                    scene_id=scene.id,
-                    base_url=self.base_url,
-                    timeout=self.timeout
-                )
-            else:
-                # Built-in scenes use lightScene capability with scene.value['id']
-                scene_id = scene.value.get('id')
-                if scene_id is None:
-                    raise ValueError(f"Scene '{scene.name}' has no valid id in value field")
+        import asyncio
 
-                cloud_control.light_scene(
-                    api_key=self.api_key,
-                    device_id=device.id,
-                    sku=device.sku,
-                    scene_id=scene_id,
-                    base_url=self.base_url,
-                    timeout=self.timeout
-                )
+        # Handle list of devices with parallel async execution
+        if isinstance(device, list):
+            async def apply_worker(dev: Device) -> Tuple[str, bool]:
+                """Worker function to apply scene to a single device."""
+                try:
+                    await self.apply_scene(dev, scene)
+                    return (dev.name, True)
+                except Exception as e:
+                    logger.error(f"Failed to apply scene to {dev.name}: {e}")
+                    return (dev.name, False)
 
-            logger.info(f"Applied scene '{scene.name}' to {device.name}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to apply scene to {device.name}: {e}")
-            raise
+            # Execute all devices concurrently
+            results_list = await asyncio.gather(*[apply_worker(dev) for dev in device])
+            results = dict(results_list)
 
-    def set_music_mode(
+            all_success = all(results.values())
+            logger.info(f"Applied scene '{scene.name}' to {len(results)} devices ({sum(results.values())}/{len(results)} succeeded)")
+            return all_success
+
+        # Handle single device - run in executor to avoid blocking
+        loop = asyncio.get_event_loop()
+
+        def _apply_scene_sync():
+            try:
+                # Check if this is a DIY scene or built-in scene
+                if isinstance(scene, DIYScene):
+                    # DIY scenes use diyScene capability with scene.id
+                    cloud_control.scene(
+                        api_key=self.api_key,
+                        device_id=device.id,
+                        sku=device.sku,
+                        scene_id=scene.id,
+                        base_url=self.base_url,
+                        timeout=self.timeout
+                    )
+                else:
+                    # Built-in scenes use lightScene capability with scene.value['id']
+                    scene_id = scene.value.get('id')
+                    if scene_id is None:
+                        raise ValueError(f"Scene '{scene.name}' has no valid id in value field")
+
+                    cloud_control.light_scene(
+                        api_key=self.api_key,
+                        device_id=device.id,
+                        sku=device.sku,
+                        scene_id=scene_id,
+                        base_url=self.base_url,
+                        timeout=self.timeout
+                    )
+
+                logger.info(f"Applied scene '{scene.name}' to {device.name}")
+                return True
+            except Exception as e:
+                logger.error(f"Failed to apply scene to {device.name}: {e}")
+                raise
+
+        return await loop.run_in_executor(None, _apply_scene_sync)
+
+    async def set_music_mode(
         self,
-        device: Device,
+        device: Union[Device, list],
         mode_value: int,
         sensitivity: int = 100
     ) -> bool:
@@ -1187,28 +1214,55 @@ class GoveeClient:
         Note: Music modes are only available via Cloud API.
 
         Args:
-            device: Device to control
+            device: Device or list of devices to control
             mode_value: Music mode ID (device-specific)
             sensitivity: Sensitivity (0-100)
 
         Returns:
-            True if successful
+            True if successful (or True if all devices succeeded when given a list)
         """
-        try:
-            cloud_control.music_mode(
-                api_key=self.api_key,
-                device_id=device.id,
-                sku=device.sku,
-                mode_value=mode_value,
-                sensitivity=sensitivity,
-                base_url=self.base_url,
-                timeout=self.timeout
-            )
-            logger.info(f"Set music mode {mode_value} on {device.name}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to set music mode on {device.name}: {e}")
-            raise
+        import asyncio
+
+        # Handle list of devices with parallel async execution
+        if isinstance(device, list):
+            async def music_mode_worker(dev: Device) -> Tuple[str, bool]:
+                """Worker function to set music mode on a single device."""
+                try:
+                    await self.set_music_mode(dev, mode_value, sensitivity)
+                    return (dev.name, True)
+                except Exception as e:
+                    logger.error(f"Failed to set music mode on {dev.name}: {e}")
+                    return (dev.name, False)
+
+            # Execute all devices concurrently
+            results_list = await asyncio.gather(*[music_mode_worker(dev) for dev in device])
+            results = dict(results_list)
+
+            all_success = all(results.values())
+            logger.info(f"Set music mode {mode_value} on {len(results)} devices ({sum(results.values())}/{len(results)} succeeded)")
+            return all_success
+
+        # Handle single device - run in executor to avoid blocking
+        loop = asyncio.get_event_loop()
+
+        def _set_music_mode_sync():
+            try:
+                cloud_control.music_mode(
+                    api_key=self.api_key,
+                    device_id=device.id,
+                    sku=device.sku,
+                    mode_value=mode_value,
+                    sensitivity=sensitivity,
+                    base_url=self.base_url,
+                    timeout=self.timeout
+                )
+                logger.info(f"Set music mode {mode_value} on {device.name}")
+                return True
+            except Exception as e:
+                logger.error(f"Failed to set music mode on {device.name}: {e}")
+                raise
+
+        return await loop.run_in_executor(None, _set_music_mode_sync)
 
     # ========== Batch Operations (Concurrent) ==========
 

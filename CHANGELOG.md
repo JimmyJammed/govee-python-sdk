@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `_parse_lan_state()` method to handle LAN API response format
   - 4x faster state queries (~0.1s vs ~0.4s per device)
   - Automatic fallback to Cloud API if LAN unavailable
+- **Async Device Control Methods** - Native async support for parallel operations
+  - `apply_scene()` is now async, accepts Device or list of devices
+  - `set_music_mode()` is now async, accepts Device or list of devices
+  - Methods use `asyncio.gather()` for true concurrent execution
+  - Integrates seamlessly with async show frameworks
+  - Simplifies show building with device collections
 
 ### Changed
 - **Parallel State Operations** - ThreadPoolExecutor for concurrent API calls
