@@ -192,11 +192,10 @@ def test_cloud_light_scenes():
     for scene_name in test_scenes:
         if scene_name in scene_options:
             scene_value = scene_options[scene_name]
-            scene_id = scene_value.get('id')
-            print(f"\n--- Applying built-in scene: {scene_name} (id={scene_id}) ---")
+            print(f"\n--- Applying built-in scene: {scene_name} (id={scene.value.get("id", "no_id")}) ---")
             try:
                 result = device_control.light_scene(
-                    TEST_API_KEY, TEST_DEVICE_ID, TEST_DEVICE_SKU, scene_id
+                    TEST_API_KEY, TEST_DEVICE_ID, TEST_DEVICE_SKU, scene.value
                 )
                 code = result.get('code')
                 print(f"✓ Scene {scene_name}: code={code}")
@@ -272,11 +271,10 @@ def test_cloud_diy_scenes():
 
     for i, scene in enumerate(diy_scenes_data[:test_count]):
         scene_name = scene.get('name')
-        scene_id = scene.get('id')
-        print(f"\n--- Applying DIY scene: {scene_name} (id={scene_id}) ---")
+        print(f"\n--- Applying DIY scene: {scene_name} (id={scene.value.get("id", "no_id")}) ---")
         try:
             result = device_control.scene(
-                TEST_API_KEY, TEST_DEVICE_ID, TEST_DEVICE_SKU, scene_id
+                TEST_API_KEY, TEST_DEVICE_ID, TEST_DEVICE_SKU, scene.value
             )
             code = result.get('code')
             print(f"✓ DIY Scene {scene_name}: code={code}")
