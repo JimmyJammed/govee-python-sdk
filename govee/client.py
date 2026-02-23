@@ -1466,21 +1466,20 @@ class GoveeClient:
                         api_key=self.api_key,
                         device_id=device.id,
                         sku=device.sku,
-                        scene_id=scene.id,
+                        scene_value=scene.value,
                         base_url=self.base_url,
                         timeout=self.timeout
                     )
                 else:
-                    # Built-in scenes use lightScene capability with scene.value['id']
-                    scene_id = scene.value.get('id')
-                    if scene_id is None:
-                        raise ValueError(f"Scene '{scene.name}' has no valid id in value field")
+                    # Updated API, light_scene now uses the whole scene.value
+                    if scene.value is None:
+                        raise ValueError(f"Scene '{scene.name}' has no valid value dict")
 
                     cloud_control.light_scene(
                         api_key=self.api_key,
                         device_id=device.id,
                         sku=device.sku,
-                        scene_id=scene_id,
+                        scene_value=scene.value,
                         base_url=self.base_url,
                         timeout=self.timeout
                     )

@@ -236,7 +236,7 @@ def scene(
     api_key: str,
     device_id: str,
     sku: str,
-    scene_id: int,
+    scene_value: dict,
     base_url: str = "https://openapi.api.govee.com/router/api/v1",
     timeout: float = 10.0,
 ) -> Dict[str, Any]:
@@ -247,7 +247,7 @@ def scene(
         api_key: Govee API key
         device_id: Device ID
         sku: Device SKU
-        scene_id: Scene ID from Govee API
+        scene_value: Scene value from Govee API
         base_url: Base URL for Govee API
         timeout: Request timeout
 
@@ -260,7 +260,7 @@ def scene(
         sku=sku,
         capability_type="devices.capabilities.dynamic_scene",
         capability_instance="diyScene",
-        value=scene_id,
+        value=scene_value,
         base_url=base_url,
         timeout=timeout,
     )
@@ -395,7 +395,7 @@ def light_scene(
     api_key: str,
     device_id: str,
     sku: str,
-    scene_id: int,
+    scene_value: dict,
     base_url: str = "https://openapi.api.govee.com/router/api/v1",
     timeout: float = 10.0,
 ) -> Dict[str, Any]:
@@ -406,7 +406,7 @@ def light_scene(
         api_key: Govee API key
         device_id: Device ID
         sku: Device SKU
-        scene_id: Light scene ID from Govee API
+        scene_value: Light scene value from Govee API
         base_url: Base URL for Govee API
         timeout: Request timeout
 
@@ -419,7 +419,7 @@ def light_scene(
         sku=sku,
         capability_type="devices.capabilities.dynamic_scene",
         capability_instance="lightScene",
-        value=scene_id,
+        value=scene_value,
         base_url=base_url,
         timeout=timeout,
     )
