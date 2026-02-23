@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2025-02-23
+
 ### Added
 - **Comprehensive Color Palettes** - 90+ predefined RGB color constants
   - Basic colors: WHITE, BLACK, RED, GREEN, BLUE, etc.
@@ -114,6 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Device collections
 - Comprehensive examples and documentation
 
-[1.2.0]: https://github.com/yourusername/govee-python/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/yourusername/govee-python/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/yourusername/govee-python/releases/tag/v1.0.0
+[1.0.2]: https://github.com/JimmyJammed/govee-python-sdk/compare/v1.0.1...v1.0.2
+[1.2.0]: https://github.com/JimmyJammed/govee-python-sdk/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/JimmyJammed/govee-python-sdk/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/JimmyJammed/govee-python-sdk/releases/tag/v1.0.0

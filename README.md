@@ -86,7 +86,7 @@ pip install govee-python
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/govee-python-sdk.git
+git clone https://github.com/JimmyJammed/govee-python-sdk.git
 cd govee-python-sdk
 pip install -e .
 ```
@@ -467,7 +467,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/govee-python-sdk/issues)
+- **Issues**: [GitHub Issues](https://github.com/JimmyJammed/govee-python-sdk/issues)
 - **Documentation**: This README
 - **Examples**: See the [examples/](examples/) directory
 
@@ -477,8 +477,8 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and version history.
 
 ### Recent Highlights
 
-- **Aggressive LAN Timeouts** (Unreleased) - Reduced LAN timeouts to 500ms for instant Cloud fallback
-- **Optional LAN Verification** (Unreleased) - `verify` parameter for fire-and-forget power commands
-- **State Management Optimization** (1.2.0) - LAN API state queries (4x faster)
-- **Color Palettes** (1.1.0) - 90+ predefined color constants
+- **Aggressive LAN Timeouts** (1.0.2) - Reduced LAN timeouts to 500ms for instant Cloud fallback
+- **Optional LAN Verification** (1.0.2) - `verify` parameter for fire-and-forget power commands
+- **Color Palettes** (1.0.2) - 90+ predefined color constants (basic, neon, pastel, seasonal)
+- **LAN Status Fix** (1.0.2) - Ephemeral ports to avoid "Address already in use" on parallel queries
 - **Interactive CLI** (1.0.0) - `govee-sync` wizard for easy setup
