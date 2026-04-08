@@ -27,6 +27,7 @@ from govee.api.cloud import device_music_modes as cloud_music_modes
 from govee.api.lan import power as lan_power
 from govee.api.lan import brightness as lan_brightness
 from govee.api.lan import color as lan_color
+from govee.api.lan import discovery as lan_discovery
 
 logger = logging.getLogger(__name__)
 
@@ -158,8 +159,19 @@ class GoveeClient:
             )
             devices.append(device)
 
-        self._devices = devices
         logger.info(f"Discovered {len(devices)} devices")
+
+        if self.prefer_lan:
+            lan_devices = lan_discovery.discover_devices()
+            logger.info(f"Discovered {len(lan_devices)} LAN devices")
+
+            # Update device's IP
+            for lan_device in lan_devices:
+                for device in devices:
+                    if lan_device['device_id'] == device.id:
+                        device.ip = lan_device['ip']
+
+        self._devices = devices
         return devices
 
     def load_devices(self, file_path: Union[str, Path]) -> None:
