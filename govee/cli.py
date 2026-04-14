@@ -16,6 +16,7 @@ from typing import Optional, List, Dict, Any
 
 from govee.client import GoveeClient
 from govee.models import Device, Scene, DIYScene, MusicMode, Colors
+from govee.exceptions import GoveeLANNotSupportedError
 from govee import __version__
 
 # Config file location
@@ -318,7 +319,8 @@ def device_commands_menu(client: GoveeClient):
             "Set Scene",
             "Set DIY Scene",
             "Set Music Mode",
-            "Get State"
+            "Get State",
+            "Get Status [LAN Only]",
         ]
 
         choice = print_menu(options)
@@ -361,6 +363,9 @@ def device_commands_menu(client: GoveeClient):
 
         elif choice == 9:  # Get State
             get_device_state(client, device)
+
+        elif choice == 10:  # Get Status [LAN Only]
+            get_device_status(client, device)
 
 
 def set_color_submenu(client: GoveeClient, device: Device):
@@ -576,6 +581,15 @@ def get_device_state(client: GoveeClient, device: Device):
     """Get the device state"""
     state = client.get_device_state(device)
     print(json.dumps(state, indent=4))
+
+
+def get_device_status(client: GoveeClient, device: Device):
+    """Get the device status (LAN only)"""
+    try:
+        status = client.get_device_status(device)
+        print(json.dumps(status, indent=4))
+    except GoveeLANNotSupportedError:
+        print("Not a LAN device")
 
 
 def main_menu():

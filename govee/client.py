@@ -18,6 +18,7 @@ from govee.exceptions import (
     GoveeDeviceNotFoundError,
     GoveeSceneNotFoundError,
     GoveeInvalidParameterError,
+    GoveeLANNotSupportedError
 )
 from govee.api.cloud import devices as cloud_devices
 from govee.api.cloud import device_control as cloud_control
@@ -29,6 +30,7 @@ from govee.api.lan import power as lan_power
 from govee.api.lan import brightness as lan_brightness
 from govee.api.lan import color as lan_color
 from govee.api.lan import discovery as lan_discovery
+from govee.api.lan import status as lan_status
 
 logger = logging.getLogger(__name__)
 
@@ -1993,3 +1995,20 @@ class GoveeClient:
             Device state
         """
         return device_state.get_device_state(self.api_key, device_id=device.id, sku=device.sku)
+
+    def get_device_status(self, device: Device):
+        """
+        Get the device's status
+
+        Args:
+            device: device to query
+
+        Returns:
+            Device status
+
+        Raises:
+            GoveeLANNotSupportedError: If not a LAN device
+        """
+        if device.supports_lan:
+            return lan_status.get_device_status(device.ip)
+        raise GoveeLANNotSupportedError(device_name=device.name)

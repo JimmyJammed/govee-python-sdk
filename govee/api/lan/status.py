@@ -63,10 +63,9 @@ def get_device_status(
     sock = None
     try:
         # Create UDP socket and bind to ephemeral port for responses
-        # Using port 0 lets OS assign an available port, avoiding conflicts in parallel queries
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(('0.0.0.0', 0))  # OS assigns ephemeral port (avoids "Address already in use")
+        sock.bind(('', listen_port))
         sock.settimeout(timeout)
 
         # Convert payload to JSON bytes
