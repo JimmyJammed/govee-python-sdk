@@ -489,7 +489,10 @@ def set_scene(client: GoveeClient, device: Device, diy: bool = False):
                     return
                 if 1 <= choice_num <= len(scenes):
                     selected_scene = scenes[choice_num - 1]
-                    result = client.apply_scene(device, selected_scene)
+
+                    import asyncio
+                    asyncio.run(client.apply_scene(device, selected_scene))
+
                     print(f"\n✓ Applied {scene_type.lower()}: {selected_scene.name}")
                     input("Press Enter to continue...")
                     return
