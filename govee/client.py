@@ -24,6 +24,7 @@ from govee.api.cloud import device_control as cloud_control
 from govee.api.cloud import device_diy_scenes as cloud_diy_scenes
 from govee.api.cloud import device_scenes as cloud_builtin_scenes
 from govee.api.cloud import device_music_modes as cloud_music_modes
+from govee.api.cloud import device_state
 from govee.api.lan import power as lan_power
 from govee.api.lan import brightness as lan_brightness
 from govee.api.lan import color as lan_color
@@ -1968,3 +1969,15 @@ class GoveeClient:
         self._scenes.extend(diy_scenes)
         logger.info(f"Discovered {len(diy_scenes)} DIY scenes")
         return diy_scenes
+
+    def get_device_state(self, device: Device):
+        """
+        Get the device's state
+
+        Args:
+            device: device to query
+
+        Returns:
+            Device state
+        """
+        return device_state.get_device_state(self.api_key, device_id=device.id, sku=device.sku)

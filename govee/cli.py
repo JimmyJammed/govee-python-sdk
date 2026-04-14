@@ -317,7 +317,8 @@ def device_commands_menu(client: GoveeClient):
             "Set Warmth",
             "Set Scene",
             "Set DIY Scene",
-            "Set Music Mode"
+            "Set Music Mode",
+            "Get State"
         ]
 
         choice = print_menu(options)
@@ -357,6 +358,9 @@ def device_commands_menu(client: GoveeClient):
 
         elif choice == 8:  # Set Music Mode
             set_music_mode(client, device)
+
+        elif choice == 9:  # Get State
+            get_device_state(client, device)
 
 
 def set_color_submenu(client: GoveeClient, device: Device):
@@ -566,6 +570,12 @@ def set_music_mode(client: GoveeClient, device: Device):
     except Exception as e:
         print(f"\n✗ Error fetching music modes: {e}")
         input("Press Enter to continue...")
+
+
+def get_device_state(client: GoveeClient, device: Device):
+    """Get the device state"""
+    state = client.get_device_state(device)
+    print(json.dumps(state, indent=4))
 
 
 def main_menu():
