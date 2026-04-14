@@ -59,6 +59,9 @@ class GoveeInvalidParameterError(GoveeError):
 class GoveeLANNotSupportedError(GoveeError):
     """Raised when LAN control is attempted on a device that doesn't support it."""
 
-    def __init__(self, device_name: str):
+    def __init__(self, device_name: str | None = None):
         self.device_name = device_name
-        super().__init__(f"Device does not support LAN control: {device_name}")
+        if self.device_name:
+            super().__init__(f"Device does not support LAN control: {device_name}")
+        else:
+            super().__init__("Device does not support LAN control")
