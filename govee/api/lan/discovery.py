@@ -12,7 +12,9 @@ import time
 
 logger = logging.getLogger(__name__)
 
-DISCOVERY_PORT = 4001
+MCAST_IP = "239.255.255.250"
+SEND_PORT = 4001
+LISTEN_PORT = 4002
 SCAN_MESSAGE = {"msg": {"cmd": "scan", "data": {"account_topic": "reserve"}}}
 
 
@@ -50,15 +52,16 @@ def discover_devices(timeout: float = 3.0, retries: int = 2) -> List[Dict[str, s
         logger.debug(f"Discovery attempt {attempt + 1}/{retries}")
 
         # Create UDP socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.bind(('', LISTEN_PORT))
         sock.settimeout(timeout)
 
         try:
-            # Send broadcast message
+            # Send to Multicast IP
             message = json.dumps(SCAN_MESSAGE).encode('utf-8')
-            sock.sendto(message, ('<broadcast>', DISCOVERY_PORT))
-            logger.debug(f"Sent broadcast scan message on port {DISCOVERY_PORT}")
+            sock.sendto(message, (MCAST_IP, SEND_PORT))
 
             # Listen for responses
             start_time = time.time()
