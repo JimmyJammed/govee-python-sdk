@@ -3,12 +3,12 @@ LAN API: Device status query via UDP
 
 Queries device status over local network to verify device state.
 """
+import json
 import logging
 import socket
-import json
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
-from govee.exceptions import GoveeConnectionError, GoveeTimeoutError, GoveeLANNotSupportedError
+from govee.exceptions import GoveeConnectionError, GoveeLANNotSupportedError
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +100,7 @@ def get_device_status(
             logger.error(f"Failed to parse status response from {device_ip}: {e}")
             return None
 
-    except socket.error as e:
+    except OSError as e:
         logger.error(f"Socket error querying {device_ip}: {e}")
         raise GoveeConnectionError(f"Failed to query device status at {device_ip}: {e}") from e
 

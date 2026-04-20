@@ -5,32 +5,31 @@ This client automatically tries LAN control first (if available),
 then falls back to Cloud API if LAN fails or is not supported.
 """
 import asyncio
-import logging
-from typing import List, Optional, Dict, Any, Tuple, Union
-from pathlib import Path
 import json
-import threading
+import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
 
-from govee.models import Device, Scene, DIYScene, MusicMode, Collection, RGBColor, Colors
-from govee.exceptions import (
-    GoveeError,
-    GoveeDeviceNotFoundError,
-    GoveeSceneNotFoundError,
-    GoveeInvalidParameterError,
-    GoveeLANNotSupportedError
-)
-from govee.api.cloud import devices as cloud_devices
 from govee.api.cloud import device_control as cloud_control
 from govee.api.cloud import device_diy_scenes as cloud_diy_scenes
-from govee.api.cloud import device_scenes as cloud_builtin_scenes
 from govee.api.cloud import device_music_modes as cloud_music_modes
+from govee.api.cloud import device_scenes as cloud_builtin_scenes
 from govee.api.cloud import device_state
-from govee.api.lan import power as lan_power
+from govee.api.cloud import devices as cloud_devices
 from govee.api.lan import brightness as lan_brightness
 from govee.api.lan import color as lan_color
 from govee.api.lan import discovery as lan_discovery
+from govee.api.lan import power as lan_power
 from govee.api.lan import status as lan_status
+from govee.exceptions import (
+    GoveeDeviceNotFoundError,
+    GoveeError,
+    GoveeInvalidParameterError,
+    GoveeLANNotSupportedError,
+    GoveeSceneNotFoundError,
+)
+from govee.models import Collection, Device, DIYScene, MusicMode, RGBColor, Scene
 
 logger = logging.getLogger(__name__)
 
@@ -298,7 +297,7 @@ class GoveeClient:
 
         logger.info(f"Loading devices from JSON: {json_path}")
 
-        with open(json_path, "r") as f:
+        with open(json_path) as f:
             data = json.load(f)
 
         # Load devices
@@ -1787,7 +1786,6 @@ class GoveeClient:
             # Restore all previously saved devices
             client.restore_state()
         """
-        from govee.state import StateManager
 
         if not hasattr(self, "_state_manager"):
             logger.warning("No state manager found. Call save_state() first.")

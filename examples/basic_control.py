@@ -9,7 +9,8 @@ Demonstrates:
 - Setting brightness and color
 """
 import time
-from govee import GoveeClient, Colors
+
+from govee import Colors, GoveeClient
 
 # Initialize client with your API key
 client = GoveeClient(

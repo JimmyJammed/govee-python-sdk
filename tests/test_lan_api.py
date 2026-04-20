@@ -3,20 +3,15 @@ Comprehensive LAN API tests.
 
 Tests all LAN API commands with device status verification at multiple intervals.
 """
-import sys
 import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from govee.api.lan import power, brightness, color as lan_color
-from tests.test_utils import (
-    verify_device_state,
-    print_test_header,
-    print_test_result,
-    compare_rgb
-)
-
+from govee.api.lan import brightness, power
+from govee.api.lan import color as lan_color
+from tests.test_utils import print_test_header, print_test_result, verify_device_state
 
 # Test configuration - update these values
 TEST_DEVICE_IP = "192.168.10.26"  # Ground2 Machine
@@ -29,7 +24,7 @@ def test_lan_power_on():
 
     # Execute command
     result = power.turn_on(TEST_DEVICE_IP)
-    print(f"Command sent: power.turn_on()")
+    print("Command sent: power.turn_on()")
     print(f"Result: {result}")
 
     # Verify state
@@ -46,7 +41,7 @@ def test_lan_power_off():
 
     # Execute command
     result = power.turn_off(TEST_DEVICE_IP)
-    print(f"Command sent: power.turn_off()")
+    print("Command sent: power.turn_off()")
     print(f"Result: {result}")
 
     # Verify state
@@ -121,10 +116,10 @@ def test_lan_device_status():
 
     # Query status
     result = status.get_device_status(TEST_DEVICE_IP)
-    print(f"Command sent: status.get_device_status()")
+    print("Command sent: status.get_device_status()")
 
     if result:
-        print(f"\nDevice Status:")
+        print("\nDevice Status:")
         print(f"  Power: {'ON' if result.get('onOff') == 1 else 'OFF'}")
         print(f"  Brightness: {result.get('brightness')}%")
         color = result.get('color', {})
@@ -132,7 +127,7 @@ def test_lan_device_status():
         print(f"  Color Temperature: {result.get('colorTemInKelvin')}K")
         return True
     else:
-        print(f"\n✗ Failed to query device status")
+        print("\n✗ Failed to query device status")
         return False
 
 
@@ -142,7 +137,7 @@ def run_all_lan_tests():
     print("COMPREHENSIVE LAN API TEST SUITE")
     print("=" * 80)
     print(f"Test Device: {TEST_DEVICE_NAME} ({TEST_DEVICE_IP})")
-    print(f"Status checks at: 0.5s, 1.0s, 1.5s, 2.0s, 3.0s after each command")
+    print("Status checks at: 0.5s, 1.0s, 1.5s, 2.0s, 3.0s after each command")
     print("=" * 80)
 
     results = {}

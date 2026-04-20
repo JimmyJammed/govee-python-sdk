@@ -17,19 +17,19 @@ __author__ = "Your Name"
 __license__ = "MIT"
 
 from govee.client import GoveeClient
-from govee.models import Device, Scene, Collection, Colors, RGBColor
-from govee.state import StateManager, DeviceState
+from govee.discovery import DeviceSync
 from govee.exceptions import (
-    GoveeError,
     GoveeAPIError,
     GoveeConnectionError,
-    GoveeTimeoutError,
     GoveeDeviceNotFoundError,
-    GoveeSceneNotFoundError,
+    GoveeError,
     GoveeInvalidParameterError,
     GoveeLANNotSupportedError,
+    GoveeSceneNotFoundError,
+    GoveeTimeoutError,
 )
-from govee.discovery import DeviceSync
+from govee.models import Collection, Colors, Device, RGBColor, Scene
+from govee.state import DeviceState, StateManager
 
 __all__ = [
     "GoveeClient",

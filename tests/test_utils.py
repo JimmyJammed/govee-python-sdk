@@ -1,9 +1,10 @@
 """
 Test utilities for verifying device state changes.
 """
-import time
 import logging
-from typing import Optional, Dict, Any, List, Tuple
+import time
+from typing import Any, Dict, List, Tuple
+
 from govee.api.lan import status
 from govee.api.lan.power import DEFAULT_VERIFICATION_DELAY
 

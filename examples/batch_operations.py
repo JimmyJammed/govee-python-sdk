@@ -9,11 +9,12 @@ Demonstrates:
 - Batch power, brightness, and color operations
 """
 import time
-from govee import GoveeClient, Colors
 
 # Import devices directly from generated module
 # (Run setup script first to generate govee_devices.py)
 from govee_devices import garage_left, garage_right
+
+from govee import Colors, GoveeClient
 
 # Initialize client
 client = GoveeClient(

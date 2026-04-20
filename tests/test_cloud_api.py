@@ -3,22 +3,15 @@ Comprehensive Cloud API tests.
 
 Tests all Cloud API endpoints.
 """
-import sys
 import os
+import sys
 import time
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from govee.api.cloud import (
-    devices,
-    device_control,
-    device_state,
-    device_scenes,
-    device_diy_scenes
-)
+from govee.api.cloud import device_control, device_diy_scenes, device_scenes, device_state, devices
 from tests.test_utils import print_test_header
-
 
 # Test configuration - update these values
 TEST_API_KEY = "88037fd0-65da-4c97-915c-642b314f0afe"
@@ -29,7 +22,7 @@ TEST_DEVICE_NAME = "Ground2 Machine"
 
 def test_cloud_get_devices():
     """Test Cloud API: Get all devices."""
-    print_test_header(f"Cloud API: Get Devices")
+    print_test_header("Cloud API: Get Devices")
 
     try:
         result = devices.get_devices(TEST_API_KEY)
@@ -222,10 +215,10 @@ def test_cloud_device_state():
     try:
         state = device_state.get_device_state(TEST_API_KEY, TEST_DEVICE_ID, TEST_DEVICE_SKU)
 
-        print(f"✓ Successfully queried device state")
+        print("✓ Successfully queried device state")
         print(f"\nDevice: {state.get('device')}")
         print(f"SKU: {state.get('sku')}")
-        print(f"\nCapabilities:")
+        print("\nCapabilities:")
 
         for cap in state.get('capabilities', []):
             instance = cap.get('instance', 'N/A')

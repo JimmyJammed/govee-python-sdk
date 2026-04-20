@@ -6,18 +6,18 @@ Usage:
     govee-sync          # Interactive wizard mode
     python -m govee.cli # Alternative invocation
 """
-import sys
-import os
 import json
-import time
+import os
 import random
+import sys
+import time
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
-from govee.client import GoveeClient
-from govee.models import Device, Scene, DIYScene, MusicMode, Colors
-from govee.exceptions import GoveeLANNotSupportedError
 from govee import __version__
+from govee.client import GoveeClient
+from govee.exceptions import GoveeLANNotSupportedError
+from govee.models import Colors, Device
 
 # Config file location
 CONFIG_FILE = Path.home() / ".govee" / "config.json"
@@ -40,7 +40,7 @@ def print_menu(options: List[str]) -> int:
     print()
     for i, option in enumerate(options, 1):
         print(f"  [{i}] {option}")
-    print(f"  [0] Back/Exit")
+    print("  [0] Back/Exit")
     print()
 
     while True:
@@ -60,7 +60,7 @@ def print_menu(options: List[str]) -> int:
 def load_config() -> Dict[str, Any]:
     """Load configuration from file."""
     if CONFIG_FILE.exists():
-        with open(CONFIG_FILE, 'r') as f:
+        with open(CONFIG_FILE) as f:
             return json.load(f)
     return {}
 
@@ -154,7 +154,7 @@ async def fetch_devices_async(client: GoveeClient):
     print("\n5. Exporting as Python modules...")
     current_dir = Path.cwd()
     client.export_as_modules(current_dir)
-    print(f"   ✓ Exported to:")
+    print("   ✓ Exported to:")
     print(f"      - {current_dir / 'govee_devices.py'}")
     if (current_dir / 'govee_device_aliases.py').exists():
         print(f"      - {current_dir / 'govee_device_aliases.py'}")
@@ -217,7 +217,7 @@ def select_device(client: GoveeClient) -> Optional[Device]:
             options.append(device.name)
             device_map[idx] = device
 
-    print(f"  [0] Back")
+    print("  [0] Back")
     print()
 
     while True:
@@ -487,7 +487,7 @@ def set_scene(client: GoveeClient, device: Device, diy: bool = False):
         print(f"\nAvailable {scene_type}s:")
         for i, scene in enumerate(scenes, 1):
             print(f"  [{i}] {scene.name}")
-        print(f"  [0] Back")
+        print("  [0] Back")
         print()
 
         while True:
@@ -529,15 +529,15 @@ def set_music_mode(client: GoveeClient, device: Device):
         music_modes = client.get_music_modes(device)
 
         if not music_modes:
-            print(f"\nNo music modes available for this device.")
-            print(f"You may need to fetch devices first to discover music modes.")
+            print("\nNo music modes available for this device.")
+            print("You may need to fetch devices first to discover music modes.")
             input("Press Enter to continue...")
             return
 
-        print(f"\nAvailable Music Modes:")
+        print("\nAvailable Music Modes:")
         for i, mode in enumerate(music_modes, 1):
             print(f"  [{i}] {mode.name}")
-        print(f"  [0] Back")
+        print("  [0] Back")
         print()
 
         while True:
@@ -550,7 +550,7 @@ def set_music_mode(client: GoveeClient, device: Device):
                     selected_mode = music_modes[choice_num - 1]
 
                     # Prompt for sensitivity (optional, defaults to 100)
-                    print(f"\nSensitivity (0-100, default 100): ", end="")
+                    print("\nSensitivity (0-100, default 100): ", end="")
                     sensitivity_input = input().strip()
                     sensitivity = int(sensitivity_input) if sensitivity_input else 100
 

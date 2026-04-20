@@ -4,7 +4,8 @@ Cloud API: GET /router/api/v1/user/devices
 Fetches all devices associated with the Govee account.
 """
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
+
 import requests
 
 from govee.exceptions import GoveeAPIError, GoveeConnectionError, GoveeTimeoutError

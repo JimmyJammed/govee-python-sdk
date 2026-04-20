@@ -11,14 +11,14 @@ Options:
     --all          Run all tests (default)
     --devices-file Path to devices JSON file (optional)
 """
-import sys
-import os
 import argparse
+import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from tests.test_config import get_test_device, print_test_step, print_step_result
+from tests.test_config import get_test_device, print_step_result, print_test_step
 
 
 def run_lan_tests(device_info):
@@ -37,12 +37,14 @@ def run_lan_tests(device_info):
 
     print(f"Device: {device_info['name']}")
     print(f"IP: {device_info['ip']}")
-    print(f"Status verification delay: 0.5s (same as LAN API default)")
+    print("Status verification delay: 0.5s (same as LAN API default)")
     print("=" * 80)
 
-    from govee.api.lan import power, brightness, color as lan_color, status
-    from tests.test_utils import verify_device_state
     import time
+
+    from govee.api.lan import brightness, power, status
+    from govee.api.lan import color as lan_color
+    from tests.test_utils import verify_device_state
 
     device_ip = device_info['ip']
     total_steps = 11  # 1 power on, 4 brightness, 4 colors, 1 status query, 1 power off
@@ -157,8 +159,9 @@ def run_cloud_tests(device_info):
     print(f"SKU: {device_info['sku']}")
     print("=" * 80)
 
-    from govee.api.cloud import device_control, device_state, device_scenes
     import time
+
+    from govee.api.cloud import device_control, device_state
 
     api_key = device_info['api_key']
     device_id = device_info['device_id']
@@ -185,7 +188,7 @@ def run_cloud_tests(device_info):
     # Test 2-5: Brightness levels
     for brightness_level in [25, 50, 75, 100]:
         step += 1
-        print_test_step(step, total_steps, f"Set Brightness to {brightness_level}%", f"API returns code 200")
+        print_test_step(step, total_steps, f"Set Brightness to {brightness_level}%", "API returns code 200")
         try:
             result = device_control.brightness(api_key, device_id, sku, brightness_level)
             code = result.get('code')
@@ -201,7 +204,7 @@ def run_cloud_tests(device_info):
     colors = [("RED", (255, 0, 0)), ("GREEN", (0, 255, 0)), ("BLUE", (0, 0, 255))]
     for color_name, rgb in colors:
         step += 1
-        print_test_step(step, total_steps, f"Set Color to {color_name}", f"API returns code 200")
+        print_test_step(step, total_steps, f"Set Color to {color_name}", "API returns code 200")
         try:
             result = device_control.color_rgb(api_key, device_id, sku, rgb)
             code = result.get('code')

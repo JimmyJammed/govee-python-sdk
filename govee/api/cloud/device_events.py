@@ -5,11 +5,11 @@ Subscribe to real-time device events via MQTTS protocol.
 Endpoint: mqtts://mqtt.openapi.govee.com:8883
 Topic: GA/[API-Key]
 """
-import logging
 import json
+import logging
 import ssl
 import threading
-from typing import Callable, Optional, Dict, Any
+from typing import Any, Callable, Dict, Optional
 
 try:
     import paho.mqtt.client as mqtt

@@ -1,9 +1,9 @@
 """
 Test configuration and device selection utilities.
 """
-import sys
-import os
 import json
+import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -66,7 +66,7 @@ def load_device_from_file(api_key: str, devices_file: str = None):
         # Fallback to JSON if Python module doesn't exist
         if devices_file.endswith('.json') and os.path.exists(devices_file):
             try:
-                with open(devices_file, 'r') as f:
+                with open(devices_file) as f:
                     data = json.load(f)
                     devices_list = data.get('devices', [])
                     print(f"Loaded {len(devices_list)} devices from JSON file: {devices_file}")

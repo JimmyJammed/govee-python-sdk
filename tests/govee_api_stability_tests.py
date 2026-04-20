@@ -20,14 +20,14 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 # Add parent directory to path to import govee module
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from govee.client import GoveeClient
-from govee.api.cloud import devices as cloud_devices
 from govee.api.cloud import device_diy_scenes
+from govee.api.cloud import devices as cloud_devices
+from govee.client import GoveeClient
 
 
 class APIStabilityTester:
@@ -166,7 +166,7 @@ class APIStabilityTester:
             devices_data = response.get("payload", {}).get("devices", [])
 
         # Test a subset of devices (first 5 that support DIY scenes)
-        self.log(f"Testing DIY scenes API for up to 5 devices...")
+        self.log("Testing DIY scenes API for up to 5 devices...")
         self.log("Endpoint: POST /router/api/v1/device/diy-scenes")
         self.log("")
 
@@ -210,7 +210,7 @@ class APIStabilityTester:
                 except Exception as e:
                     # Device might not support DIY scenes
                     if "400" in str(e):
-                        self.log(f"  Device does not support DIY scenes (400 error)")
+                        self.log("  Device does not support DIY scenes (400 error)")
                         break
                     else:
                         self.log(f"  Error: {e}", "ERROR")
@@ -234,7 +234,7 @@ class APIStabilityTester:
 
                         # Log the actual differences
                         if comparison['items_only_in_1']:
-                            self.log(f"\n    Scenes only in Fetch 1:")
+                            self.log("\n    Scenes only in Fetch 1:")
                             for scene in comparison['items_only_in_1'][:5]:  # Show first 5
                                 self.log(f"      - {scene.get('name')} (ID: {scene.get('id')})")
 
@@ -250,7 +250,7 @@ class APIStabilityTester:
                         "sku": sku
                     })
                 else:
-                    self.log(f"  ✓ All fetches returned identical results")
+                    self.log("  ✓ All fetches returned identical results")
 
         self.log("")
         if unstable_devices:
@@ -280,7 +280,7 @@ class APIStabilityTester:
             devices_data = response.get("payload", {}).get("devices", [])
 
         # Test first device that supports scenes
-        self.log(f"Testing built-in scenes API for first device...")
+        self.log("Testing built-in scenes API for first device...")
         self.log("Endpoint: POST /router/api/v1/device/scenes")
         self.log("")
 
@@ -317,7 +317,7 @@ class APIStabilityTester:
 
                 except Exception as e:
                     if "400" in str(e):
-                        self.log(f"  Device does not support built-in scenes (400 error)")
+                        self.log("  Device does not support built-in scenes (400 error)")
                         break
                     else:
                         self.log(f"  Error: {e}", "ERROR")
@@ -336,7 +336,7 @@ class APIStabilityTester:
                         self.log(f"    Fetch {i+1}: {comparison['total_2']} scenes")
 
                 if all_identical:
-                    self.log(f"  ✓ All fetches returned identical results")
+                    self.log("  ✓ All fetches returned identical results")
 
                 return all_identical
 

@@ -1,9 +1,9 @@
 """
 Core data models for govee-python package.
 """
-from dataclasses import dataclass, field, asdict
-from typing import List, Optional, Dict, Any, Tuple
 import json
+from dataclasses import asdict, dataclass, field
+from typing import Any, Dict, List, Optional, Tuple
 
 
 @dataclass
