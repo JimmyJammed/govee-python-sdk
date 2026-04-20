@@ -136,7 +136,7 @@ def _send_udp_command(
         GoveeLANNotSupportedError: If no IP provided
     """
     if not device_ip:
-        raise GoveeLANNotSupportedError("No IP address provided for LAN control")
+        raise GoveeLANNotSupportedError()
 
     sock = None
     try:
