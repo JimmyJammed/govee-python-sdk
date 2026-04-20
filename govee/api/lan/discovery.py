@@ -4,11 +4,11 @@ LAN API: Device Discovery via UDP broadcast
 Discovers Govee devices on the local network by listening for
 UDP broadcast messages on port 4001.
 """
-import socket
 import json
 import logging
-from typing import Dict, List, Optional
+import socket
 import time
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

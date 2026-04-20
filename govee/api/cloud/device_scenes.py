@@ -6,7 +6,8 @@ Fetches built-in scenes for a specific device.
 import asyncio
 import logging
 import uuid
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 import requests
 
 try:

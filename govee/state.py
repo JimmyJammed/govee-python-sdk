@@ -5,11 +5,11 @@ Provides functionality to save and restore device states (power, brightness, col
 for use in scenarios like light shows where you want to restore the original state afterwards.
 """
 import logging
-from typing import Dict, Any, List, Optional, Union, Tuple
-from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from govee.models import Device, Collection, RGBColor
+from govee.models import Collection, Device, RGBColor
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,8 @@ This is useful for light shows where you want to restore the original
 state of lights after the show completes.
 """
 import time
-from govee import GoveeClient, Colors
+
+from govee import Colors, GoveeClient
 
 # Initialize client
 API_KEY = "your-api-key-here"

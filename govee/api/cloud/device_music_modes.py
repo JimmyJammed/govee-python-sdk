@@ -6,7 +6,7 @@ Music modes are included in the capabilities array with type "devices.capabiliti
 and instance "musicMode".
 """
 import logging
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 

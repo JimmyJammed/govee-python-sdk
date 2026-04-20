@@ -5,7 +5,8 @@ Query the current status of a device.
 """
 import logging
 import uuid
-from typing import Dict, Any, List
+from typing import Any, Dict
+
 import requests
 
 from govee.exceptions import GoveeAPIError, GoveeConnectionError, GoveeTimeoutError

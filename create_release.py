@@ -14,8 +14,8 @@ Examples:
 import json
 import os
 import sys
-import urllib.request
 import urllib.error
+import urllib.request
 
 REPO = "JimmyJammed/govee-python-sdk"
 
@@ -117,16 +117,16 @@ def main():
         print(f"   - Select tag: {TAG}")
         print(f"   - Title: {TAG}")
         sys.exit(1)
-    
+
     release_body = get_release_body(VERSION)
     if not release_body:
         print(f"❌ No release body defined for version {VERSION}")
         print(f"   Available versions: {', '.join(RELEASE_BODIES.keys())}")
         sys.exit(1)
-    
+
     print(f"📦 Creating release {TAG} for {REPO}")
     print(f"   Version: {VERSION}")
-    
+
     release_data = {
         "tag_name": TAG,
         "name": TAG,
@@ -134,7 +134,7 @@ def main():
         "draft": False,
         "prerelease": False
     }
-    
+
     url = f"https://api.github.com/repos/{REPO}/releases"
     data = json.dumps(release_data).encode('utf-8')
     req = urllib.request.Request(url, data=data, headers={
@@ -142,7 +142,7 @@ def main():
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.github.v3+json'
     })
-    
+
     try:
         with urllib.request.urlopen(req) as response:
             result = json.loads(response.read().decode('utf-8'))

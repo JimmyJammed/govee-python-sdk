@@ -3,14 +3,14 @@ LAN API: Color control via UDP
 
 Sends color/color temperature commands to Govee devices over local network.
 """
+import json
 import logging
 import socket
-import json
 import time
-from typing import Tuple, Optional
+from typing import Tuple
 
-from govee.exceptions import GoveeConnectionError, GoveeLANNotSupportedError
 from govee.api.lan import status as lan_status
+from govee.exceptions import GoveeConnectionError, GoveeLANNotSupportedError
 
 logger = logging.getLogger(__name__)
 
@@ -154,7 +154,7 @@ def _send_udp_command(
         logger.info(f"Successfully sent LAN command to {device_ip}")
         return True
 
-    except socket.error as e:
+    except OSError as e:
         logger.error(f"Socket error sending to {device_ip}: {e}")
         raise GoveeConnectionError(f"Failed to send LAN command to {device_ip}: {e}") from e
 

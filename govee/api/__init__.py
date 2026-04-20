@@ -1,8 +1,8 @@
 """
 Govee API implementations (Cloud and LAN).
 """
-from govee.api.cloud import devices, device_control, device_diy_scenes
-from govee.api.lan import power, brightness, color
+from govee.api.cloud import device_control, device_diy_scenes, devices
+from govee.api.lan import brightness, color, power
 
 __all__ = [
     "devices",

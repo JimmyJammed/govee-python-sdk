@@ -5,7 +5,8 @@ Controls Govee devices via capability-based commands.
 """
 import logging
 import uuid
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 import requests
 
 from govee.exceptions import GoveeAPIError, GoveeConnectionError, GoveeTimeoutError
