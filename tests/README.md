@@ -2,6 +2,28 @@
 
 Comprehensive test suite for validating LAN and Cloud API functionality.
 
+## Configuration
+
+These tests talk to real hardware and a real account, so nothing is hardcoded.
+Copy `.env.example` to `.env`, fill it in, and export it:
+
+```bash
+cp .env.example .env
+$EDITOR .env
+set -a && source .env && set +a
+```
+
+| Variable | Used by | Where it comes from |
+|---|---|---|
+| `GOVEE_API_KEY` | cloud | developer.govee.com |
+| `GOVEE_TEST_DEVICE_ID` | cloud | `get_devices()` |
+| `GOVEE_TEST_DEVICE_SKU` | cloud | `get_devices()` |
+| `GOVEE_TEST_DEVICE_IP` | LAN | your router; LAN control must be on for the device |
+| `GOVEE_TEST_DEVICE_NAME` | both | cosmetic, used in test output |
+
+The suites exit with a message if the variables they need are unset.
+
+
 ## Overview
 
 This test suite provides:

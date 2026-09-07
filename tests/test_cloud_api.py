@@ -13,11 +13,21 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from govee.api.cloud import device_control, device_diy_scenes, device_scenes, device_state, devices
 from tests.test_utils import print_test_header
 
-# Test configuration - update these values
-TEST_API_KEY = "88037fd0-65da-4c97-915c-642b314f0afe"
-TEST_DEVICE_ID = "0E:BE:D6:50:83:C6:15:1F"
-TEST_DEVICE_SKU = "H7052"
-TEST_DEVICE_NAME = "Ground2 Machine"
+# Test configuration. Set these in your environment, or copy .env.example to
+# .env and export it — see the README. Nothing here is committed.
+TEST_API_KEY = os.environ.get("GOVEE_API_KEY", "")
+TEST_DEVICE_ID = os.environ.get("GOVEE_TEST_DEVICE_ID", "")
+TEST_DEVICE_SKU = os.environ.get("GOVEE_TEST_DEVICE_SKU", "")
+TEST_DEVICE_NAME = os.environ.get("GOVEE_TEST_DEVICE_NAME", "Test Device")
+
+if not TEST_API_KEY or not TEST_DEVICE_ID:
+    raise SystemExit(
+        "Cloud API tests need real credentials.\n"
+        "  export GOVEE_API_KEY=...            (developer.govee.com)\n"
+        "  export GOVEE_TEST_DEVICE_ID=...     (MAC-style id from get_devices)\n"
+        "  export GOVEE_TEST_DEVICE_SKU=...    (e.g. H7052)\n"
+        "See .env.example."
+    )
 
 
 def test_cloud_get_devices():

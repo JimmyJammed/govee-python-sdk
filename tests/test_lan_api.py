@@ -13,9 +13,16 @@ from govee.api.lan import brightness, power
 from govee.api.lan import color as lan_color
 from tests.test_utils import print_test_header, print_test_result, verify_device_state
 
-# Test configuration - update these values
-TEST_DEVICE_IP = "192.168.10.26"  # Ground2 Machine
-TEST_DEVICE_NAME = "Ground2 Machine"
+# Test configuration. Set these in your environment — see .env.example.
+TEST_DEVICE_IP = os.environ.get("GOVEE_TEST_DEVICE_IP", "")
+TEST_DEVICE_NAME = os.environ.get("GOVEE_TEST_DEVICE_NAME", "Test Device")
+
+if not TEST_DEVICE_IP:
+    raise SystemExit(
+        "LAN API tests need a device on your network.\n"
+        "  export GOVEE_TEST_DEVICE_IP=192.168.x.x\n"
+        "See .env.example."
+    )
 
 
 def test_lan_power_on():
